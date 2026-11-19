@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para ti 🤍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,400;1,600&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#dde1e8; --bg2:#ffffff; --rose:#b8892e; --rose2:#ecd48f; --gold:#8f6c20; --text:#3a3a42; --muted:#7a7e88;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;height:100%;overflow:hidden;color:var(--text);
+  font-family:"Nunito",system-ui,sans-serif;
+  background:radial-gradient(ellipse at 50% 40%,var(--bg2),var(--bg) 70%);
+  background-color:var(--bg);
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;transition:opacity .9s ease,transform .9s ease}
+.screen.hidden{opacity:0;pointer-events:none;transform:scale(1.06)}
+#story{display:block;padding:0;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y proximity;-webkit-overflow-scrolling:touch}
+#story.hidden{transform:translateY(16px)}
+.page{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 24px;text-align:center;scroll-snap-align:start}
+.cue{margin-top:40px;font-size:1.7rem;color:var(--gold);animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+
+/* Preguntas */
+#quiz > .reveal{opacity:0;transform:translateY(14px);transition:opacity .9s ease,transform .9s ease}
+#quiz.show > .reveal{opacity:1;transform:none}
+#quiz.show > .reveal:nth-child(2){transition-delay:.7s}
+#quiz.show > .reveal:nth-child(3){transition-delay:1.5s}
+#quiz h2{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.9rem,8vw,2.9rem);line-height:1.15;margin:0 0 14px;color:var(--gold)}
+#quiz .lead{font-size:clamp(1.05rem,4vw,1.25rem);line-height:1.6;max-width:24em;margin:0;color:var(--muted)}
+.card{background:rgba(255,255,255,.75);border:1px solid #d9c27f;border-radius:22px;padding:26px 22px;width:min(92vw,420px);margin-top:30px;box-shadow:0 12px 40px rgba(150,130,80,.16)}
+.dots{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+.dots i{width:9px;height:9px;border-radius:50%;background:#c4c8d0;transition:background .3s}
+.dots i.on{background:#c9a24a}
+.q{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:1.4rem;line-height:1.3;margin:0 0 22px;color:var(--text)}
+.opts{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;padding:12px 28px;border-radius:999px;border:1.5px solid #c9a24a;background:linear-gradient(#fff,#f3ecd9);color:#7a5a16;cursor:pointer}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible,.num:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.num{font:inherit;font-size:1.4rem;width:110px;text-align:center;padding:10px;border-radius:14px;border:1.5px solid #b4bac3;background:#fff;color:var(--text);user-select:text;-webkit-user-select:text}
+.fb{min-height:1.5em;margin:16px 0 0;font-size:.98rem;color:var(--gold)}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.win{font-size:2rem;margin:0 0 8px}
+
+/* Juego */
+.hint{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:clamp(1.3rem,5vw,1.8rem);margin:0 0 28px;min-height:2.4em;color:var(--gold);max-width:20em;line-height:1.3}
+button#heart{background:none;border:0;padding:0;cursor:pointer;width:min(68vw,320px);aspect-ratio:100/90;position:relative;outline-offset:10px;border-radius:30%}
+button#heart:focus-visible{outline:2px solid var(--gold)}
+#beat{display:block;width:100%;height:100%;animation:beat 1.15s ease-in-out infinite;filter:drop-shadow(0 6px 26px rgba(201,162,74,.5))}
+#beat svg{width:100%;height:100%;overflow:visible}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.09)}28%{transform:scale(1)}42%{transform:scale(1.06)}70%{transform:scale(1)}}
+.bar{width:min(60vw,260px);height:6px;border-radius:6px;background:rgba(130,136,148,.22);margin-top:34px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose2),var(--rose));border-radius:6px;transition:width .25s ease}
+
+.float{position:fixed;pointer-events:none;font-size:22px;z-index:5;animation:up 1.2s ease-out forwards}
+@keyframes up{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),-140px) scale(1.2)}}
+
+/* Bienvenida */
+#welcome h1{background:linear-gradient(100deg,#9a7424,#e8cb77 40%,#9ea4ae 75%,#c9a24a);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .1em .08em;font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(2.6rem,12vw,5.2rem);line-height:1.05;margin:0 0 18px}
+#welcome p{font-size:clamp(1.05rem,4vw,1.35rem);line-height:1.6;max-width:24em;margin:0;color:var(--muted)}
+#welcome .small{margin-top:36px;font-size:.95rem}
+.mini{font-size:2.2rem;margin-bottom:12px;animation:beat 1.15s ease-in-out infinite}
+#welcome > *{opacity:0;transform:translateY(14px);transition:opacity .9s ease,transform .9s ease}
+#welcome.show > *{opacity:1;transform:none}
+#welcome.show > :nth-child(2){transition-delay:.5s}
+#welcome.show > :nth-child(3){transition-delay:1.2s}
+#welcome.show > :nth-child(4){transition-delay:2s}
+#welcome.show > :nth-child(5){transition-delay:2.8s}
+
+/* Cuento */
+.btn-red{background:linear-gradient(#ff5d6c,#d4152f);border-color:#b00f26;color:#fff;box-shadow:0 6px 18px rgba(212,21,47,.35);padding:13px 38px;font-size:1.1rem}
+.book{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) 8px env(safe-area-inset-bottom,0px);background:rgba(50,46,56,.55);backdrop-filter:blur(5px);opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s}
+.book.open{opacity:1;visibility:visible}
+.panel{width:min(98vw,980px);height:92vh;height:92dvh;max-height:900px;display:flex;flex-direction:column;overflow:hidden;border-radius:24px;border:1px solid #d9c27f;background:linear-gradient(#fff,#f5f2ea);box-shadow:0 30px 80px rgba(0,0,0,.3);transform:scale(.86) translateY(24px);transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.open .panel{transform:none}
+.bhead{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;font-family:"Fraunces",Georgia,serif;font-style:italic;color:var(--gold);border-bottom:1px solid #e4d7aa;background:rgba(255,255,255,.8)}
+.ibtn{display:inline-flex;font:inherit;border:0;background:none;font-size:1.25rem;color:var(--gold);cursor:pointer;padding:6px 10px;border-radius:10px}
+.ibtn[hidden]{display:none}
+.ibtn:focus-visible{outline:2px solid var(--gold)}
+.bscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px;user-select:text}
+.chap{--pf:.8fr;--tf:1.2fr;display:grid;grid-template-columns:minmax(0,var(--pf)) minmax(0,var(--tf));gap:18px;min-height:110vh}
+.chap.rev{grid-template-columns:minmax(0,var(--tf)) minmax(0,var(--pf))}
+.chap.land{--pf:1.15fr;--tf:.85fr}
+.chap.rev .ph{order:2}
+.ph{position:relative}
+.frame{position:sticky;top:14vh;width:min(100%,calc(62vh*var(--ar,.75)));margin:0 auto;box-sizing:border-box;padding:7px;background:#fff;border:1px solid #d9c27f;border-radius:6px;box-shadow:0 10px 28px rgba(120,100,50,.22);transform:rotate(-2deg);will-change:opacity}
+.rev .frame{transform:rotate(2deg)}
+.coll{padding:12vh 0 8vh;text-align:center}
+.coll h3{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.4rem,5vw,2rem);margin:0 0 32px;color:var(--gold)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px 16px;align-items:center;max-width:640px;margin:0 auto}
+.cl.land{grid-column:1/-1}
+.cf{position:relative;top:auto;width:100%;margin:0;transform:rotate(-1.5deg)}
+.cl:nth-child(even) .cf{transform:rotate(1.5deg)}
+.slot{aspect-ratio:var(--ar,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:2rem;overflow:hidden;background:linear-gradient(135deg,#f1f2f5,#cfd3db);color:#8b909a}
+.slot small{font-size:.8rem}
+.slot img{width:100%;height:100%;object-fit:cover;display:block}
+.tx{padding:14vh 2px 8vh;text-align:left}
+.tx h3{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.4rem,5vw,2rem);margin:0 0 24vh;color:var(--gold)}
+.tx p{font-size:clamp(.98rem,3.6vw,1.15rem);line-height:1.7;margin:0 0 24vh}
+.tx p:last-child{margin-bottom:6vh}
+.end{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+@media (prefers-reduced-motion:reduce){.panel{transition:none}}
+@media (prefers-reduced-motion:reduce){
+  #beat,.mini,.cue{animation:none}
+  .screen,#welcome > *{transition-duration:.01s}
+}
+</style>
+</head>
+<body>
+
+<section id="game" class="screen">
+  <p class="hint" id="hint">Hay algo para ti. Toca el corazón para despertarlo.</p>
+  <button id="heart" aria-label="Tocar el corazón">
+    <span id="beat">
+      <svg viewBox="0 0 100 90" aria-hidden="true">
+        <defs>
+          <clipPath id="shape"><path id="hp" d="M50 85C20 60 2 42 2 25 2 11 13 2 26 2 36 2 45 8 50 16 55 8 64 2 74 2 87 2 98 11 98 25 98 42 80 60 50 85Z"/></clipPath>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e4a6"/><stop offset="0.55" stop-color="#d9b45a"/><stop offset="1" stop-color="#a87a24"/></linearGradient>
+        </defs>
+        <use href="#hp" fill="rgba(201,162,74,.13)"/>
+        <g clip-path="url(#shape)"><rect id="fill" x="0" y="90" width="100" height="90" fill="url(#g)" style="transition:y .3s ease"/></g>
+        <use href="#hp" fill="none" stroke="#b4bac3" stroke-width="1.8"/>
+      </svg>
+    </span>
+  </button>
+  <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+</section>
+
+<main id="story" class="screen hidden">
+  <section id="welcome" class="page">
+    <div class="mini">🤍</div>
+    <h1>Bienvenida, <span id="name">mi amor</span></h1>
+    <p>Hoy es tu día y preparé algo especial solo para ti.</p>
+    <p class="small">Aquí empieza tu sorpresa…</p>
+    <div class="cue" aria-hidden="true">⌄</div>
+  </section>
+
+  <section id="quiz" class="page">
+    <h2 class="reveal">Esto no va a ser tan fácil…</h2>
+    <p class="lead reveal">Para seguir adelante tienes que contestar 3 preguntas. Piénsalo bien.</p>
+    <div class="card reveal" id="qbox" aria-live="polite"></div>
+  </section>
+</main>
+
+<div class="book" id="book" role="dialog" aria-modal="true" aria-label="Nuestra historia">
+  <div class="panel">
+    <div class="bhead"><span>Nuestra historia</span><span><button class="ibtn" id="mbtn" hidden aria-label="Pausar o reanudar la música">🔊</button><button class="ibtn" id="bclose" aria-label="Cerrar">✕</button></span></div>
+    <div class="bscroll" id="bscroll"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ====== Ajustes fáciles ======
+  var NEEDED = 16;            // toques para abrir (más de 15)
+  var HER_NAME = "mi amor";   // cambia por su nombre
+  // =============================
+  document.getElementById('name').textContent = HER_NAME;
+  var count = 0, done = false;
+  var heart = document.getElementById('heart');
+  var fill = document.getElementById('fill');
+  var prog = document.getElementById('prog');
+  var hint = document.getElementById('hint');
+  var msgs = {
+    1:"Así, otra vez…", 4:"Sigue, lo estás despertando.", 8:"Ya casi late fuerte.",
+    12:"Un poquito más…", 15:"¡Uno más!"
+  };
+
+  function floatHeart(x,y){
+    var s = document.createElement('span');
+    s.className = 'float';
+    s.textContent = ['🤍','✨','🤍','🌟'][Math.floor(Math.random()*4)];
+    s.style.left = x+'px'; s.style.top = y+'px';
+    s.style.setProperty('--dx', (Math.random()*120-60)+'px');
+    document.body.appendChild(s);
+    setTimeout(function(){s.remove()},1200);
+  }
+
+  function open(){
+    done = true;
+    var r = heart.getBoundingClientRect();
+    for(var i=0;i<18;i++){
+      (function(i){setTimeout(function(){
+        floatHeart(r.left + Math.random()*r.width, r.top + Math.random()*r.height);
+      }, i*45)})(i);
+    }
+    hint.textContent = '🤍';
+    setTimeout(function(){
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('story').classList.remove('hidden');
+      setTimeout(function(){document.getElementById('welcome').classList.add('show')},300);
+    }, 1100);
+  }
+
+  function tap(e){
+    if(done) return;
+    count++;
+    var p = Math.min(count/NEEDED,1);
+    fill.style.y = (90 - 90*p) + 'px';
+    prog.style.width = (p*100)+'%';
+    if(msgs[count]) hint.textContent = msgs[count];
+    var pt = e.touches ? e.touches[0] : e;
+    var x = (pt && pt.clientX) || (heart.getBoundingClientRect().left + heart.offsetWidth/2);
+    var y = (pt && pt.clientY) || (heart.getBoundingClientRect().top + heart.offsetHeight/2);
+    floatHeart(x,y);
+    if(heart.animate){
+      heart.animate([{transform:'scale(1)'},{transform:'scale(1.14)'},{transform:'scale(1)'}],{duration:260,easing:'ease-out'});
+    }
+    if(count >= NEEDED) open();
+  }
+  heart.addEventListener('click', tap);
+
+  // ====== Preguntas ======
+  // Respuestas correctas (cámbialas aquí). En las de opción: 'yo' o 'el'.
+  var QUESTIONS = [
+    {t:'¿Quién dijo primero “te amo”?', type:'choice', ok:'yo'},
+    {t:'¿Cuántas películas hemos visto juntos?', type:'num', ok:10},
+    {t:'¿Quién de los dos es más ordenado?', type:'choice', ok:'el'}
+  ];
+  var CHOICES = [['yo','Yo'],['el','Él']];
+  var qi = 0;
+  var box = document.getElementById('qbox');
+
+  function dots(){
+    var h = '<div class="dots" aria-hidden="true">';
+    for(var k=0;k<QUESTIONS.length;k++) h += '<i class="'+(k<=qi?'on':'')+'"></i>';
+    return h+'</div>';
+  }
+  function wrong(){
+    var fb = document.getElementById('fb');
+    fb.textContent = ['Mmm, no es esa. Inténtalo otra vez 🤍','Casi… o no tanto. Piénsalo bien.','Tú puedes, mi vida. Otra vez.'][Math.floor(Math.random()*3)];
+    box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+  }
+  function right(){
+    var fb = document.getElementById('fb');
+    fb.textContent = '¡Correcto! ✨';
+    setTimeout(function(){ qi++; render(); }, 700);
+  }
+  function render(){
+    if(qi >= QUESTIONS.length){
+      box.innerHTML = '<p class="win">✨</p><p class="q" style="margin:0 0 10px">Lo lograste, mi amor.</p><p class="fb" style="margin:0 0 22px">Vamos a dar un repaso de lo que ha pasado.</p><button class="btn btn-red" id="go-story">Vamos</button>';
+      document.getElementById('go-story').addEventListener('click', openStory);
+      return;
+    }
+    var q = QUESTIONS[qi];
+    var h = dots() + '<p class="q">'+q.t+'</p><div class="opts">';
+    if(q.type === 'choice'){
+      CHOICES.forEach(function(c){ h += '<button class="btn" data-v="'+c[0]+'">'+c[1]+'</button>'; });
+    } else {
+      h += '<input class="num" id="num" type="number" inputmode="numeric" min="0" aria-label="Tu respuesta"><button class="btn" id="go">Responder</button>';
+    }
+    h += '</div><p class="fb" id="fb"></p>';
+    box.innerHTML = h;
+    if(q.type === 'choice'){
+      box.querySelectorAll('.btn').forEach(function(b){
+        b.addEventListener('click', function(){ b.getAttribute('data-v') === q.ok ? right() : wrong(); });
+      });
+    } else {
+      var inp = document.getElementById('num');
+      var check = function(){ if(inp.value === '') return; Number(inp.value) === q.ok ? right() : wrong(); };
+      document.getElementById('go').addEventListener('click', check);
+      inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') check(); });
+    }
+  }
+  render();
+
+  // ====== Cuento ======
+  // Sube junto a este archivo: musica.mp3 y las fotos img1, img2, img3...
+  // (jpg, jpeg, png o webp; en minúsculas). Cada capítulo usa la foto de su número.
+  var AUDIO_FILE = 'musica.mp3';
+  var CHAPTERS = [
+    {img:1, title:'El primer día que salimos', text:[
+      'Es algo que tengo muy guardado en la memoria: yo sintiendo más nervios que nunca, pero me prometí tener valor y mostrar seguridad.',
+      'Verte enfrente de mí fue algo sorprendente, y poder hacerte reír fue emocionante para mí. Ver que la chica hermosa que tenía enfrente se reía de todos mis chistes bobos…',
+      'Ese día marcó un antes y un después en mi vida.'
+    ]},
+    {img:2, title:'Primera visita al cine', text:[
+      'De ese día recuerdo algo muy significativo. Puede ser nada, pero para mí significó que se me acelerara el corazón.',
+      'Que apoyaras tu cabeza en mi hombro fue para mí la señal de que confiabas en mí, y siempre significará eso para mí.',
+      'Además, ese día te confesé que quería todo contigo, que al fin sentí que había encontrado aquello que tanto anhelaba hallar.'
+    ]},
+    {img:3, title:'Primera foto subida', text:[
+      'Le doy importancia porque dar a conocer a la persona con la que quiero todo fue súper importante.',
+      'Ese día solo éramos tú, yo, la lluvia y mi bocina con canciones todas cursis, pero esos momentos, créeme, no se van de mi mente.'
+    ]},
+    {img:4, title:'Conoces a mi familia', text:[
+      'El día que al fin terminaba una etapa tan importante para mí, también era el día en que empezaba una nueva: la etapa donde conocerías a mi familia, y sobre todo a Abi.',
+      'Creo que para mí esa fue la confirmación de que te amaba con todo mi ser. No le presentaría a Abi a alguien que no quisiera que se quedara para mí toda la vida.',
+      'Además, te veías hermosísima ese día.'
+    ]},
+    {img:7, title:'Día de pizza', text:[
+      'Okey, este día tal vez pudo haber pasado desapercibido, pero ya teníamos rato sin vernos. Creí estar preparado para el hecho de que entrar a la universidad conllevaría no poder verte tan seguido, cosa a la que no estábamos acostumbrados: éramos uña y mugre.',
+      'Solo recuerdo verte a lo lejos y tener unas ganas enormes de abrazarte y no soltarte.',
+      'Todos mis problemas del día se esfumaron con solo ese abrazo.'
+    ]},
+    {img:8, title:'Día de la entrevista', text:[
+      'Me gusta este día. ¿Por qué? Porque fuimos libres.',
+      'Solo íbamos a una entrevista y terminamos comiendo Marchan y boba.',
+      'Y además, no paré de reír ese día.'
+    ]},
+    {img:9, title:'Día difícil con final feliz', text:[
+      'La verdad no recuerdo por qué estábamos peleando, solo sé que era una pelea seria.',
+      'Pero ese día me aferré a ti como nunca lo había hecho: dejé todo mi orgullo a un lado, te escuché y te entendí.',
+      'Y me salieron palabras del corazón.'
+    ]},
+    {img:11, title:'Día de Muertos', text:[
+      'Okey, uno de mis días favoritos, obviooo: maquillarnos, reír, ir a pedir dulces, acompañar a Fred.',
+      'Creo que ese día vi que quería que algún día hiciéramos eso, pero que fuera a nuestro hijo a quien acompañáramos.'
+    ]}
+  ];
+  // Fotos que no están en ningún capítulo: salen juntas en el collage final.
+  var COLLAGE = [5,10,6];
+  // Solo para el marco de ejemplo (ancho/alto de cada foto). Con la foto real se ajusta sola.
+  var RATIOS = [0.56,1.75,0.55,1.77,0.75,1.78,1.77,1.77,1.83,0.56,0.56];
+  var book = document.getElementById('book'), bscroll = document.getElementById('bscroll'), mbtn = document.getElementById('mbtn');
+  var built = false, music = null;
+
+  function setAR(ch, ar){
+    ch.querySelector('.frame').style.setProperty('--ar', ar);
+    ch.classList.toggle('land', ar > 1.1);
+  }
+  function loadPhoto(n, slot, ch){
+    var exts = ['jpg','jpeg','png','webp'], k = 0, img = new Image();
+    img.alt = '';
+    img.onload = function(){ setAR(ch, img.naturalWidth / img.naturalHeight); slot.innerHTML = ''; slot.appendChild(img); fade(); };
+    img.onerror = function(){ k++; if(k < exts.length) img.src = 'img'+n+'.'+exts[k]; };
+    img.src = 'img'+n+'.'+exts[0];
+  }
+  function build(){
+    if(built) return; built = true;
+    CHAPTERS.forEach(function(c,i){
+      var s = document.createElement('section');
+      s.className = 'chap' + (i%2 ? ' rev' : '');
+      s.innerHTML = '<div class="ph"><div class="frame"><div class="slot">🤍<small>img'+c.img+'</small></div></div></div><div class="tx"><h3>'+c.title+'</h3>'+c.text.map(function(p){return '<p>'+p+'</p>';}).join('')+'</div>';
+      bscroll.appendChild(s);
+      setAR(s, RATIOS[c.img-1] || 0.75);
+      loadPhoto(c.img, s.querySelector('.slot'), s);
+    });
+    var co = document.createElement('section');
+    co.className = 'coll';
+    co.innerHTML = '<h3>También me acuerdo de estos días</h3><div class="cgrid"></div>';
+    var cg = co.querySelector('.cgrid');
+    COLLAGE.forEach(function(n){
+      var d = document.createElement('div');
+      d.className = 'cl';
+      d.innerHTML = '<div class="frame cf"><div class="slot">🤍<small>img'+n+'</small></div></div>';
+      cg.appendChild(d);
+      setAR(d, RATIOS[n-1] || 0.75);
+      loadPhoto(n, d.querySelector('.slot'), d);
+    });
+    bscroll.appendChild(co);
+    var end = document.createElement('section');
+    end.className = 'end';
+    end.innerHTML = '<p class="win">✨</p><p class="q">Y esto apenas empieza…</p>';
+    bscroll.appendChild(end);
+    bscroll.addEventListener('scroll', fade, {passive:true});
+  }
+  function clamp(v){ return Math.max(0, Math.min(1, v)); }
+  function fade(){
+    var vh = bscroll.clientHeight, top0 = bscroll.getBoundingClientRect().top;
+    bscroll.querySelectorAll('.chap').forEach(function(ch){
+      var r = ch.getBoundingClientRect(), top = r.top - top0, total = Math.max(r.height - vh, 1);
+      var p = -top / total;
+      var fin = clamp((vh - top) / (vh*0.5)), fout = clamp(1 - (p - 0.55) / 0.35);
+      ch.querySelector('.frame').style.opacity = Math.min(fin, fout);
+    });
+  }
+  function playMusic(){
+    if(!music){
+      music = new Audio(AUDIO_FILE); music.loop = true; music.volume = 0.6;
+      music.addEventListener('playing', function(){ mbtn.hidden = false; mbtn.textContent = '🔊'; });
+      music.addEventListener('pause', function(){ mbtn.textContent = '🔇'; });
+      music.addEventListener('error', function(){ mbtn.hidden = true; });
+    }
+    music.play().catch(function(){});
+  }
+  function openStory(){
+    build(); bscroll.scrollTop = 0; fade();
+    book.classList.add('open');
+    playMusic();
+    document.getElementById('bclose').focus();
+  }
+  function closeStory(){ book.classList.remove('open'); if(music) music.pause(); }
+  mbtn.addEventListener('click', function(){ if(!music) return; music.paused ? music.play() : music.pause(); });
+  document.getElementById('bclose').addEventListener('click', closeStory);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeStory(); });
+
+  // Aparece el texto al deslizar hasta las preguntas
+  var quiz = document.getElementById('quiz');
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es,ob){
+      es.forEach(function(e){ if(e.isIntersecting){ quiz.classList.add('show'); ob.disconnect(); } });
+    }, {root: document.getElementById('story'), threshold: 0.35}).observe(quiz);
+  } else { quiz.classList.add('show'); }
+})();
+</script>
+</body>
+</html>
