@@ -96,8 +96,9 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
 .rev .frame{transform:rotate(2deg)}
 .coll{padding:12vh 0 8vh;text-align:center}
 .coll h3{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.4rem,5vw,2rem);margin:0 0 32px;color:var(--gold)}
-.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px 16px;align-items:center;max-width:640px;margin:0 auto}
-.cl.land{grid-column:1/-1}
+.cgrid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:22px 16px;max-width:640px;margin:0 auto}
+.cl{flex:0 1 calc(50% - 8px)}
+.cl.land{flex:0 0 100%}
 .cf{position:relative;top:auto;width:100%;margin:0;transform:rotate(-1.5deg)}
 .cl:nth-child(even) .cf{transform:rotate(1.5deg)}
 .slot{aspect-ratio:var(--ar,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:2rem;overflow:hidden;background:linear-gradient(135deg,#f1f2f5,#cfd3db);color:#8b909a}
@@ -107,6 +108,7 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
 .tx h3{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.4rem,5vw,2rem);margin:0 0 24vh;color:var(--gold)}
 .tx p{font-size:clamp(.98rem,3.6vw,1.15rem);line-height:1.7;margin:0 0 24vh}
 .tx p:last-child{margin-bottom:6vh}
+.fin{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.8rem,7vw,2.8rem);margin:0;padding:0 .1em .1em;background:linear-gradient(100deg,#9a7424,#e8cb77 40%,#9ea4ae 75%,#c9a24a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .end{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 @media (prefers-reduced-motion:reduce){.panel{transition:none}}
 @media (prefers-reduced-motion:reduce){
@@ -153,7 +155,7 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
 
 <div class="book" id="book" role="dialog" aria-modal="true" aria-label="Nuestra historia">
   <div class="panel">
-    <div class="bhead"><span>Nuestra historia</span><span><button class="ibtn" id="mbtn" hidden aria-label="Pausar o reanudar la música">🔊</button><button class="ibtn" id="bclose" aria-label="Cerrar">✕</button></span></div>
+    <div class="bhead"><span>Nuestra historia</span><span><button class="ibtn" id="bclose" aria-label="Cerrar">✕</button></span></div>
     <div class="bscroll" id="bscroll"></div>
   </div>
 </div>
@@ -274,9 +276,8 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
   render();
 
   // ====== Cuento ======
-  // Sube junto a este archivo: musica.mp3 y las fotos img1, img2, img3...
+  // Sube junto a este archivo las fotos img1, img2, img3...
   // (jpg, jpeg, png o webp; en minúsculas). Cada capítulo usa la foto de su número.
-  var AUDIO_FILE = 'musica.mp3';
   var CHAPTERS = [
     {img:1, title:'El primer día que salimos', text:[
       'Es algo que tengo muy guardado en la memoria: yo sintiendo más nervios que nunca, pero me prometí tener valor y mostrar seguridad.',
@@ -292,7 +293,7 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
       'Le doy importancia porque dar a conocer a la persona con la que quiero todo fue súper importante.',
       'Ese día solo éramos tú, yo, la lluvia y mi bocina con canciones todas cursis, pero esos momentos, créeme, no se van de mi mente.'
     ]},
-    {img:4, title:'Conoces a mi familia', text:[
+    {img:5, title:'Conoces a mi familia', text:[
       'El día que al fin terminaba una etapa tan importante para mí, también era el día en que empezaba una nueva: la etapa donde conocerías a mi familia, y sobre todo a Abi.',
       'Creo que para mí esa fue la confirmación de que te amaba con todo mi ser. No le presentaría a Abi a alguien que no quisiera que se quedara para mí toda la vida.',
       'Además, te veías hermosísima ese día.'
@@ -318,11 +319,11 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
     ]}
   ];
   // Fotos que no están en ningún capítulo: salen juntas en el collage final.
-  var COLLAGE = [5,10,6];
+  var COLLAGE = [4,10,6];
   // Solo para el marco de ejemplo (ancho/alto de cada foto). Con la foto real se ajusta sola.
   var RATIOS = [0.56,1.75,0.55,1.77,0.75,1.78,1.77,1.77,1.83,0.56,0.56];
-  var book = document.getElementById('book'), bscroll = document.getElementById('bscroll'), mbtn = document.getElementById('mbtn');
-  var built = false, music = null;
+  var book = document.getElementById('book'), bscroll = document.getElementById('bscroll');
+  var built = false;
 
   function setAR(ch, ar){
     ch.querySelector('.frame').style.setProperty('--ar', ar);
@@ -360,7 +361,7 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
     bscroll.appendChild(co);
     var end = document.createElement('section');
     end.className = 'end';
-    end.innerHTML = '<p class="win">✨</p><p class="q">Y esto apenas empieza…</p>';
+    end.innerHTML = '<div class="mini">🤍</div><h3 class="fin">Y esto apenas empieza…</h3>';
     bscroll.appendChild(end);
     bscroll.addEventListener('scroll', fade, {passive:true});
   }
@@ -374,23 +375,12 @@ button#heart:focus-visible{outline:2px solid var(--gold)}
       ch.querySelector('.frame').style.opacity = Math.min(fin, fout);
     });
   }
-  function playMusic(){
-    if(!music){
-      music = new Audio(AUDIO_FILE); music.loop = true; music.volume = 0.6;
-      music.addEventListener('playing', function(){ mbtn.hidden = false; mbtn.textContent = '🔊'; });
-      music.addEventListener('pause', function(){ mbtn.textContent = '🔇'; });
-      music.addEventListener('error', function(){ mbtn.hidden = true; });
-    }
-    music.play().catch(function(){});
-  }
   function openStory(){
     build(); bscroll.scrollTop = 0; fade();
     book.classList.add('open');
-    playMusic();
     document.getElementById('bclose').focus();
   }
-  function closeStory(){ book.classList.remove('open'); if(music) music.pause(); }
-  mbtn.addEventListener('click', function(){ if(!music) return; music.paused ? music.play() : music.pause(); });
+  function closeStory(){ book.classList.remove('open'); }
   document.getElementById('bclose').addEventListener('click', closeStory);
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeStory(); });
 
